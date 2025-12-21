@@ -42,7 +42,6 @@ UltraSystemScripts/
 ├── .gitignore               # Ignored files (local settings, dev scripts)
 ├── UltraSweeper.bat         # Main disk cleanup script (~880 lines)
 ├── UltraDriverCleaner.bat   # Driver management script (~415 lines)
-├── DriverCleanup.rar        # Compressed backup archive
 ├── CONTRIBUTING.md          # This file (developer documentation)
 └── README.md                # User-facing documentation (if exists)
 ```
