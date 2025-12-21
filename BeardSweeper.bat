@@ -26,7 +26,7 @@ color
 	ECHO    Automagic disk cleanup script!
 	ECHO	Purpose of this batch file is to recover as much "safe" free space from your windows system drive
 	ECHO	in order to gain back free space that Windows, other programs, and users themselves have consumed.
-	ECHO Version 21-12-2025
+	ECHO Version 21-12-2025 v2.0 - Added 12 new cleanup targets
 :StartofScript
 	echo ********************************************
 	ECHO 	Your Current free space of hard drive:
@@ -528,7 +528,7 @@ ECHO Cleaning Edge -Chromium- Cache
 :messengerCleanupPrompt
 	set /p messenger=Do you wish to delete Messenger cache? (Safe, rebuilds automatically) [Y/N]?
 	if /I "%messenger%" EQU "Y" goto messengerCleanup
-	if /I "%messenger%" EQU "N" goto CLEANMGR
+	if /I "%messenger%" EQU "N" goto ollamaCleanupPrompt
 
 :messengerCleanup
 	ECHO Cleaning Messenger cache for all users
@@ -539,6 +539,158 @@ ECHO Cleaning Edge -Chromium- Cache
 		DEL /S /Q /F "%%u\AppData\Local\Messenger\GPUCache\" >nul 2>&1
 		DEL /S /Q /F "%%u\AppData\Roaming\Messenger\Cache\" >nul 2>&1
 		DEL /S /Q /F "%%u\AppData\Roaming\Messenger\logs\" >nul 2>&1
+	)
+
+:ollamaCleanupPrompt
+	set /p ollama=Do you wish to delete Ollama cache? (Logs and temp only, NOT models) [Y/N]?
+	if /I "%ollama%" EQU "Y" goto ollamaCleanup
+	if /I "%ollama%" EQU "N" goto playwrightCleanupPrompt
+
+:ollamaCleanup
+	ECHO Cleaning Ollama cache (preserving models)
+	For /d %%u in (c:\users\*) do (
+		DEL /S /Q /F "%%u\AppData\Local\Ollama\*.log" >nul 2>&1
+		RD /S /Q "%%u\AppData\Local\Ollama\tmp" >nul 2>&1
+	)
+
+:playwrightCleanupPrompt
+	set /p playwright=Do you wish to delete Playwright browser cache? (500MB-2GB, reinstalls on next use) [Y/N]?
+	if /I "%playwright%" EQU "Y" goto playwrightCleanup
+	if /I "%playwright%" EQU "N" goto uvCleanupPrompt
+
+:playwrightCleanup
+	ECHO Cleaning Playwright browser cache
+	For /d %%u in (c:\users\*) do (
+		RD /S /Q "%%u\AppData\Local\ms-playwright" >nul 2>&1
+		RD /S /Q "%%u\AppData\Local\ms-playwright-go" >nul 2>&1
+	)
+
+:uvCleanupPrompt
+	set /p uv=Do you wish to delete uv/Poetry Python cache? (Safe, rebuilds automatically) [Y/N]?
+	if /I "%uv%" EQU "Y" goto uvCleanup
+	if /I "%uv%" EQU "N" goto zoomCleanupPrompt
+
+:uvCleanup
+	ECHO Cleaning uv and Poetry cache
+	For /d %%u in (c:\users\*) do (
+		RD /S /Q "%%u\AppData\Local\uv\cache" >nul 2>&1
+		RD /S /Q "%%u\AppData\Local\pypoetry\Cache" >nul 2>&1
+		RD /S /Q "%%u\AppData\Roaming\pypoetry\Cache" >nul 2>&1
+		RD /S /Q "%%u\AppData\Local\prisma-nodejs" >nul 2>&1
+	)
+
+:zoomCleanupPrompt
+	set /p zoom=Do you wish to delete Zoom cache? (Safe, rebuilds automatically) [Y/N]?
+	if /I "%zoom%" EQU "Y" goto zoomCleanup
+	if /I "%zoom%" EQU "N" goto claudeCleanupPrompt
+
+:zoomCleanup
+	ECHO Cleaning Zoom cache
+	taskkill /F /IM Zoom.exe >nul 2>&1
+	For /d %%u in (c:\users\*) do (
+		RD /S /Q "%%u\AppData\Roaming\Zoom\data" >nul 2>&1
+		DEL /S /Q /F "%%u\AppData\Roaming\Zoom\logs\*.*" >nul 2>&1
+	)
+
+:claudeCleanupPrompt
+	set /p claude=Do you wish to delete Claude Desktop cache? (Safe, rebuilds automatically) [Y/N]?
+	if /I "%claude%" EQU "Y" goto claudeCleanup
+	if /I "%claude%" EQU "N" goto audacityCleanupPrompt
+
+:claudeCleanup
+	ECHO Cleaning Claude Desktop cache
+	taskkill /F /IM Claude.exe >nul 2>&1
+	For /d %%u in (c:\users\*) do (
+		RD /S /Q "%%u\AppData\Local\AnthropicClaude\Cache" >nul 2>&1
+		RD /S /Q "%%u\AppData\Local\AnthropicClaude\Code Cache" >nul 2>&1
+		RD /S /Q "%%u\AppData\Local\AnthropicClaude\GPUCache" >nul 2>&1
+		RD /S /Q "%%u\AppData\Roaming\Claude\Cache" >nul 2>&1
+	)
+
+:audacityCleanupPrompt
+	set /p audacity=Do you wish to delete Audacity temp files? (Safe, rebuilds automatically) [Y/N]?
+	if /I "%audacity%" EQU "Y" goto audacityCleanup
+	if /I "%audacity%" EQU "N" goto handbrakeCleanupPrompt
+
+:audacityCleanup
+	ECHO Cleaning Audacity temp files
+	taskkill /F /IM audacity.exe >nul 2>&1
+	For /d %%u in (c:\users\*) do (
+		DEL /S /Q /F "%%u\AppData\Local\audacity\SessionData\*.*" >nul 2>&1
+		DEL /S /Q /F "%%u\AppData\Roaming\audacity\AutoSave\*.*" >nul 2>&1
+	)
+
+:handbrakeCleanupPrompt
+	set /p handbrake=Do you wish to delete HandBrake logs? (Safe) [Y/N]?
+	if /I "%handbrake%" EQU "Y" goto handbrakeCleanup
+	if /I "%handbrake%" EQU "N" goto pgadminCleanupPrompt
+
+:handbrakeCleanup
+	ECHO Cleaning HandBrake logs
+	For /d %%u in (c:\users\*) do (
+		DEL /S /Q /F "%%u\AppData\Roaming\HandBrake\logs\*.*" >nul 2>&1
+	)
+
+:pgadminCleanupPrompt
+	set /p pgadmin=Do you wish to delete pgAdmin session cache? (Safe) [Y/N]?
+	if /I "%pgadmin%" EQU "Y" goto pgadminCleanup
+	if /I "%pgadmin%" EQU "N" goto winrarCleanupPrompt
+
+:pgadminCleanup
+	ECHO Cleaning pgAdmin cache
+	For /d %%u in (c:\users\*) do (
+		RD /S /Q "%%u\AppData\Roaming\pgAdmin\sessions" >nul 2>&1
+		RD /S /Q "%%u\AppData\Roaming\pgadmin4\sessions" >nul 2>&1
+		DEL /S /Q /F "%%u\AppData\Roaming\pgAdmin\*.log" >nul 2>&1
+		DEL /S /Q /F "%%u\AppData\Roaming\pgadmin4\*.log" >nul 2>&1
+	)
+
+:winrarCleanupPrompt
+	set /p winrar=Do you wish to delete WinRAR temp extract cache? (Safe) [Y/N]?
+	if /I "%winrar%" EQU "Y" goto winrarCleanup
+	if /I "%winrar%" EQU "N" goto rufusCleanupPrompt
+
+:winrarCleanup
+	ECHO Cleaning WinRAR cache
+	For /d %%u in (c:\users\*) do (
+		RD /S /Q "%%u\AppData\Roaming\WinRAR\Arc" >nul 2>&1
+	)
+
+:rufusCleanupPrompt
+	set /p rufus=Do you wish to delete Rufus ISO cache? (Safe) [Y/N]?
+	if /I "%rufus%" EQU "Y" goto rufusCleanup
+	if /I "%rufus%" EQU "N" goto everythingCleanupPrompt
+
+:rufusCleanup
+	ECHO Cleaning Rufus cache
+	For /d %%u in (c:\users\*) do (
+		DEL /S /Q /F "%%u\AppData\Local\Rufus\*.iso" >nul 2>&1
+		DEL /S /Q /F "%%u\AppData\Local\Rufus\*.img" >nul 2>&1
+	)
+
+:everythingCleanupPrompt
+	set /p everything=Do you wish to delete Everything search index? (Will rebuild on next launch) [Y/N]?
+	if /I "%everything%" EQU "Y" goto everythingCleanup
+	if /I "%everything%" EQU "N" goto avidemuxCleanupPrompt
+
+:everythingCleanup
+	ECHO Cleaning Everything search index
+	taskkill /F /IM Everything.exe >nul 2>&1
+	For /d %%u in (c:\users\*) do (
+		DEL /S /Q /F "%%u\AppData\Local\Everything\*.db" >nul 2>&1
+		DEL /S /Q /F "%%u\AppData\Roaming\Everything\*.db" >nul 2>&1
+	)
+
+:avidemuxCleanupPrompt
+	set /p avidemux=Do you wish to delete avidemux temp files? (Safe) [Y/N]?
+	if /I "%avidemux%" EQU "Y" goto avidemuxCleanup
+	if /I "%avidemux%" EQU "N" goto CLEANMGR
+
+:avidemuxCleanup
+	ECHO Cleaning avidemux temp files
+	For /d %%u in (c:\users\*) do (
+		RD /S /Q "%%u\AppData\Local\avidemux" >nul 2>&1
+		DEL /S /Q /F "%%u\AppData\Roaming\avidemux\*.*" >nul 2>&1
 	)
 
 :CLEANMGR
