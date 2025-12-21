@@ -684,13 +684,27 @@ ECHO Cleaning Edge -Chromium- Cache
 :avidemuxCleanupPrompt
 	set /p avidemux=Do you wish to delete avidemux temp files? (Safe) [Y/N]?
 	if /I "%avidemux%" EQU "Y" goto avidemuxCleanup
-	if /I "%avidemux%" EQU "N" goto CLEANMGR
+	if /I "%avidemux%" EQU "N" goto antigravityCleanupPrompt
 
 :avidemuxCleanup
 	ECHO Cleaning avidemux temp files
 	For /d %%u in (c:\users\*) do (
 		RD /S /Q "%%u\AppData\Local\avidemux" >nul 2>&1
 		DEL /S /Q /F "%%u\AppData\Roaming\avidemux\*.*" >nul 2>&1
+	)
+
+:antigravityCleanupPrompt
+	set /p antigravity=Do you wish to delete Antigravity cache? (Safe, rebuilds automatically) [Y/N]?
+	if /I "%antigravity%" EQU "Y" goto antigravityCleanup
+	if /I "%antigravity%" EQU "N" goto CLEANMGR
+
+:antigravityCleanup
+	ECHO Cleaning Antigravity cache
+	For /d %%u in (c:\users\*) do (
+		RD /S /Q "%%u\AppData\Roaming\Antigravity\Cache" >nul 2>&1
+		RD /S /Q "%%u\AppData\Roaming\Antigravity\Code Cache" >nul 2>&1
+		RD /S /Q "%%u\AppData\Roaming\Antigravity\GPUCache" >nul 2>&1
+		DEL /S /Q /F "%%u\AppData\Roaming\Antigravity\logs\*.*" >nul 2>&1
 	)
 
 :CLEANMGR
