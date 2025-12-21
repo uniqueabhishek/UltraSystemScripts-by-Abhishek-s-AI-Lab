@@ -696,9 +696,20 @@ ECHO Cleaning Edge -Chromium- Cache
 	powercfg -h off
 	goto END
 :END
+	ECHO Waiting 30 seconds for Windows to settle and rebuild system files...
+	TIMEOUT /T 30 /NOBREAK
 	echo ********************************************
-	ECHO New free space of hard drive:
+	ECHO Checking for large system files that may have been recreated:
+	powershell -Command "Get-ChildItem C:\pagefile.sys -Force -ErrorAction SilentlyContinue | Select-Object Name, @{Name='SizeGB';Expression={[math]::Round($_.Length/1GB,2)}}"
+	powershell -Command "Get-ChildItem C:\hiberfil.sys -Force -ErrorAction SilentlyContinue | Select-Object Name, @{Name='SizeGB';Expression={[math]::Round($_.Length/1GB,2)}}"
+	echo ********************************************
+	ECHO New free space of hard drive after Windows settled:
 	fsutil volume diskfree c:
+	echo ********************************************
+	ECHO.
+	ECHO NOTE: Windows 11 reserves 6-7GB for system updates and recovery.
+	ECHO       If Explorer shows different free space, wait 1-2 minutes for
+	ECHO       Windows to reclaim its reserved storage. This is normal behavior.
 	echo ********************************************
 	color 0A
 	ECHO All cleaned up, have a nice day!
