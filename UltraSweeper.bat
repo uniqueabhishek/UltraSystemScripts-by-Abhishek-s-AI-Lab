@@ -22,8 +22,11 @@ ECHO =============================
 ::cls
 	@ECHO OFF
 color
-	TITLE Welcome to My Sweeper script!
-	ECHO    Automagic disk cleanup script!
+	TITLE UltraSweeper by Abhishek's AI Lab
+	ECHO    =================================================
+	ECHO         UltraSweeper by Abhishek's AI Lab
+	ECHO              Automagic Disk Cleanup Script
+	ECHO    =================================================
 	ECHO	Purpose of this batch file is to recover as much "safe" free space from your windows system drive
 	ECHO	in order to gain back free space that Windows, other programs, and users themselves have consumed.
 	ECHO Version 21-12-2025 v2.0 - Added 12 new cleanup targets
@@ -874,5 +877,5 @@ ECHO Cleaning Edge -Chromium- Cache
 	ECHO       Windows to reclaim its reserved storage. This is normal behavior.
 	echo ********************************************
 	color 0A
-	ECHO All cleaned up, have a nice day!
+	ECHO UltraSweeper by Abhishek's AI Lab - All cleaned up, have a nice day!
 	PAUSE
