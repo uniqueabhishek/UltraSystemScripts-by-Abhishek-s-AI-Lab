@@ -208,7 +208,7 @@ ECHO iOS device Backups cleanup
 	taskkill /f /IM "chrome.exe" >nul 2>&1
 
 :InternetExploder
- ECHO Cleaning Internet Explorer cache
+	ECHO Cleaning Internet Explorer cache
 	%systemdrive%\Windows\System32\rundll32.exe InetCpl.cpl, ClearMyTracksByProcess 255 >nul 2>&1
 	%systemdrive%\Windows\System32\rundll32.exe InetCpl.cpl, ClearMyTracksByProcess 4351 >nul 2>&1
 
@@ -237,7 +237,7 @@ ECHO iOS device Backups cleanup
 		)
 		del /q /s /f "!chromeDataDir!\component_crx_cache\"	>nul 2>&1
 		del /q /s /f "!chromeDataDir!\GrShaderCache\"	>nul 2>&1
-		del /q /s /f "!chromeDataDir!\ShaderChache\"	>nul 2>&1
+		del /q /s /f "!chromeDataDir!\ShaderCache\"	>nul 2>&1
 
 		REM Clean up the temporary file after each profile is processed
     	IF EXIST "!folderListFile!" DEL /Q /F "!folderListFile!"
@@ -268,7 +268,7 @@ ECHO Cleaning Edge -Chromium- Cache
 		)
 		del /q /s /f "!edgeDataDir!\component_crx_cache\"	>nul 2>&1
 		del /q /s /f "!edgeDataDir!\GrShaderCache\"	>nul 2>&1
-		del /q /s /f "!edgeDataDir!\ShaderChache\"	>nul 2>&1
+		del /q /s /f "!edgeDataDir!\ShaderCache\"	>nul 2>&1
 
 		REM Clean up the temporary file after each profile is processed
     	IF EXIST "!folderListFile!" DEL /Q /F "!folderListFile!"
@@ -285,37 +285,32 @@ ECHO Cleaning Edge -Chromium- Cache
 		)
 	)
 
-:FireFoxCacheWorkInProgress
-::	taskkill /f /IM "firefox.exe" >nul 2>&1
-::
-::	For /d %%u in (%systemdrive%\users\*) do
-::	cd /d "%%u\AppData\Local\Mozilla\Firefox\Profiles"
-::
-::	for /d %%a in (*.default) do (
-::	if exist %%a (
-::	for /D %%p in (%%a\cache2) do rmdir "%%p" /S /Q > NUL 2> NUL
-::	del %%a\cache2\* /F /Q /S > NUL 2> NUL
-::	for /D %%p in (%%a\startupCache) do rmdir "%%p" /S /Q > NUL 2> NUL
-::	del %%a\startupCache\* /F /Q /S > NUL 2> NUL
-::	for /D %%p in (%%a\jumpListCache) do rmdir "%%p" /S /Q > NUL 2> NUL
-::	del %%a\jumpListCache\* /F /Q /S > NUL 2> NUL
-::	for /D %%p in (%%a\OfflineCache) do rmdir "%%p" /S /Q > NUL 2> NUL
-::	del %%a\OfflineCache\* /F /Q /S > NUL 2> NUL
-::		)
-::	)
-::
-::	for /d %%a in (*.default-release) do (
-::	if exist %%a (
-::	for /D %%p in (%%a\cache2) do rmdir "%%p" /S /Q > NUL 2> NUL
-::	del %%a\cache2\* /F /Q /S > NUL 2> NUL
-::	for /D %%p in (%%a\startupCache) do rmdir "%%p" /S /Q > NUL 2> NUL
-::	del %%a\startupCache\* /F /Q /S > NUL 2> NUL
-::	for /D %%p in (%%a\jumpListCache) do rmdir "%%p" /S /Q > NUL 2> NUL
-::	del %%a\jumpListCache\* /F /Q /S > NUL 2> NUL
-::	for /D %%p in (%%a\OfflineCache) do rmdir "%%p" /S /Q > NUL 2> NUL
-::	del %%a\OfflineCache\* /F /Q /S > NUL 2> NUL
-::		)
-::	)
+:FireFoxCache
+	ECHO Cleaning Firefox Cache
+	taskkill /f /IM "firefox.exe" >nul 2>&1
+
+	For /d %%u in (%systemdrive%\users\*) do (
+		pushd "%%u\AppData\Local\Mozilla\Firefox\Profiles" 2>nul
+		if not errorlevel 1 (
+			for /d %%a in (*.default) do (
+				if exist "%%a" (
+					rd /S /Q "%%a\cache2" >nul 2>&1
+					rd /S /Q "%%a\startupCache" >nul 2>&1
+					rd /S /Q "%%a\jumpListCache" >nul 2>&1
+					rd /S /Q "%%a\OfflineCache" >nul 2>&1
+				)
+			)
+			for /d %%a in (*.default-release) do (
+				if exist "%%a" (
+					rd /S /Q "%%a\cache2" >nul 2>&1
+					rd /S /Q "%%a\startupCache" >nul 2>&1
+					rd /S /Q "%%a\jumpListCache" >nul 2>&1
+					rd /S /Q "%%a\OfflineCache" >nul 2>&1
+				)
+			)
+			popd
+		)
+	)
 
 :DevelopmentToolsCleanup
 	ECHO ////////////////////////////////////////////////////////////////////////////
@@ -366,7 +361,7 @@ ECHO Cleaning Edge -Chromium- Cache
 :dockerCleanupPrompt
 	set /p docker=Do you wish to clean Docker system cache? (Removes unused containers/images) [Y/N]?
 	if /I "%docker%" EQU "Y" goto dockerCleanup
-	if /I "%docker%" EQU "N" goto CLEANMGR
+	if /I "%docker%" EQU "N" goto nugetCleanupPrompt
 
 :dockerCleanup
 	ECHO Running Docker system prune...
@@ -663,7 +658,7 @@ ECHO Cleaning Edge -Chromium- Cache
 
 :Windowsws
 	::$Windows.~WS hidden folder
-	IF exist "%systemdrive%\Windows.~WS" (
+	IF exist "%systemdrive%\$Windows.~WS" (
 		takeown /F "%systemDrive%\$Windows.~WS" /A /R /D Y >nul 2>&1
 		icacls %systemdrive%\$Windows.~WS\*.* /T /grant administrators:F >nul 2>&1
 		RD /s /q %systemDrive%\$Windows.~WS >nul 2>&1
