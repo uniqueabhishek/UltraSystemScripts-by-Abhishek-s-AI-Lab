@@ -705,6 +705,7 @@ ECHO Cleaning Edge -Chromium- Cache
 		RD /S /Q "%%u\AppData\Roaming\Antigravity\Code Cache" >nul 2>&1
 		RD /S /Q "%%u\AppData\Roaming\Antigravity\GPUCache" >nul 2>&1
 		DEL /S /Q /F "%%u\AppData\Roaming\Antigravity\logs\*.*" >nul 2>&1
+		RD /S /Q "%%u\.gemini\antigravity\browser_recordings" >nul 2>&1
 	)
 
 :CLEANMGR
