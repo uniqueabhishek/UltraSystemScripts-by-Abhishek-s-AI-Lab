@@ -216,7 +216,7 @@ ECHO iOS device Backups cleanup
 	%systemdrive%\Windows\System32\rundll32.exe InetCpl.cpl, ClearMyTracksByProcess 4351 >nul 2>&1
 
 :GoogleChrome
- ECHO Cleaning Google Chrome Cache
+ ECHO Cleaning Google Chrome Cache (preserving login sessions)
 
 	SETLOCAL EnableDelayedExpansion
 	For /d %%u in ("%systemdrive%\users\*") do (
@@ -225,7 +225,7 @@ ECHO iOS device Backups cleanup
 
 	REM Find the matching folders and store them in the temporary file
 	FOR /D %%A IN ("!chromeDataDir!\Default" "!chromeDataDir!\Profile *") DO (
-	ECHO %%~nA>> "!folderListFile!"
+	ECHO %%~nA>>"!folderListFile!"
 	)
 
 	IF EXIST "!folderListFile!" (
@@ -233,7 +233,7 @@ ECHO iOS device Backups cleanup
 		del /q /s /f "!chromeDataDir!\%%B\Cache\cache_data\"	>nul 2>&1
 		del /q /s /f "!chromeDataDir!\%%B\Code Cache\js\"	>nul 2>&1
 		del /q /s /f "!chromeDataDir!\%%B\Code Cache\wasm\"	>nul 2>&1
-		del /q /s /f "!chromeDataDir!\%%B\Service Worker\CacheStorage\"	>nul 2>&1
+		REM SKIPPING Service Worker\CacheStorage - contains auth tokens that would log users out
 		del /q /s /f "!chromeDataDir!\%%B\Service Worker\ScriptCache\"	>nul 2>&1
 		del /q /s /f "!chromeDataDir!\%%B\gpucache\"	>nul 2>&1
 			)
@@ -248,7 +248,7 @@ ECHO iOS device Backups cleanup
 	ENDLOCAL
 
 :EdgeChromiumCache
-ECHO Cleaning Edge -Chromium- Cache
+ECHO Cleaning Edge -Chromium- Cache (preserving login sessions)
 	SETLOCAL EnableDelayedExpansion
 	For /d %%u in ("%systemdrive%\users\*") do (
 	SET "edgeDataDir=%%u\AppData\Local\Microsoft\Edge\User Data"
@@ -256,7 +256,7 @@ ECHO Cleaning Edge -Chromium- Cache
 
 	REM Find the matching folders and store them in the temporary file
 	FOR /D %%A IN ("!edgeDataDir!\Default" "!edgeDataDir!\Profile *") DO (
-	ECHO %%~nA>> "!folderListFile!"
+	ECHO %%~nA>>"!folderListFile!"
 	)
 
 	IF EXIST "!folderListFile!" (
@@ -264,7 +264,7 @@ ECHO Cleaning Edge -Chromium- Cache
 		del /q /s /f "!edgeDataDir!\%%B\Cache\cache_data\"	>nul 2>&1
 		del /q /s /f "!edgeDataDir!\%%B\Code Cache\js\"	>nul 2>&1
 		del /q /s /f "!edgeDataDir!\%%B\Code Cache\wasm\"	>nul 2>&1
-		del /q /s /f "!edgeDataDir!\%%B\Service Worker\CacheStorage\"	>nul 2>&1
+		REM SKIPPING Service Worker\CacheStorage - contains auth tokens that would log users out
 		del /q /s /f "!edgeDataDir!\%%B\Service Worker\ScriptCache\"	>nul 2>&1
 		del /q /s /f "!edgeDataDir!\%%B\gpucache\"	>nul 2>&1
 			)
