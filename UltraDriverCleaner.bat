@@ -1,9 +1,9 @@
 @ECHO OFF
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-:: Driver Cleanup & Restore Utility v2.0
+:: UltraDriverCleaner by Abhishek's AI Lab v2.0
 :: Features: Cleanup, Backup, and Professional Restore
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-TITLE Driver Cleanup ^& Restore Utility
+TITLE UltraDriverCleaner by Abhishek's AI Lab
 color 0E
 
 :: Check for admin privileges
@@ -17,7 +17,7 @@ if '%errorlevel%' == '0' ( goto :main ) else ( goto :getAdmin )
 :main
 cls
 ECHO ============================================================
-ECHO      DRIVER CLEANUP ^& RESTORE UTILITY v2.0
+ECHO     UltraDriverCleaner by Abhishek's AI Lab v2.0
 ECHO ============================================================
 ECHO.
 ECHO Current DriverStore size:
