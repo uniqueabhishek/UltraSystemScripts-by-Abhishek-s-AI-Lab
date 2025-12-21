@@ -319,9 +319,10 @@ ECHO Cleaning Edge -Chromium- Cache
 
 :DevelopmentToolsCleanup
 	ECHO ////////////////////////////////////////////////////////////////////////////
-	ECHO /////  Development Tool Cache Cleanup                                 /////
+	ECHO /////  Development Tool and Application Cache Cleanup                 /////
 	ECHO /////  The following caches are safe to delete and will be rebuilt    /////
-	ECHO /////  automatically: npm, pip, Gradle, Docker, NuGet, PowerShell, WSL /////
+	ECHO /////  npm, pip, Gradle, Docker, NuGet, PowerShell, WSL, VS Code,     /////
+	ECHO /////  Brave, Chocolatey, Android SDK, Conda, GitHub Desktop, Messenger /////
 	ECHO ////////////////////////////////////////////////////////////////////////////
 
 :npmCleanupPrompt
@@ -407,7 +408,7 @@ ECHO Cleaning Edge -Chromium- Cache
 :wslCleanupPrompt
 	set /p wsl=Do you wish to clean WSL distribution caches? (Requires WSL running) [Y/N]?
 	if /I "%wsl%" EQU "Y" goto wslCleanup
-	if /I "%wsl%" EQU "N" goto CLEANMGR
+	if /I "%wsl%" EQU "N" goto vscodeCleanupPrompt
 
 :wslCleanup
 	ECHO Cleaning WSL distribution caches...
@@ -418,6 +419,131 @@ ECHO Cleaning Edge -Chromium- Cache
 		ECHO WSL cleanup completed successfully
 	) else (
 		ECHO WSL cleanup skipped - WSL not running or not configured
+	)
+
+:vscodeCleanupPrompt
+	set /p vscode=Do you wish to delete VS Code cache? (Safe, rebuilds automatically) [Y/N]?
+	if /I "%vscode%" EQU "Y" goto vscodeCleanup
+	if /I "%vscode%" EQU "N" goto braveCleanupPrompt
+
+:vscodeCleanup
+	ECHO Cleaning VS Code cache for all users
+	For /d %%u in (c:\users\*) do (
+		REM Code Cache
+		DEL /S /Q /F "%%u\AppData\Roaming\Code\Cache\" >nul 2>&1
+		DEL /S /Q /F "%%u\AppData\Roaming\Code\Code Cache\" >nul 2>&1
+		DEL /S /Q /F "%%u\AppData\Roaming\Code\GPUCache\" >nul 2>&1
+		REM CachedData
+		RD /S /Q "%%u\AppData\Roaming\Code\CachedData" >nul 2>&1
+		REM Logs
+		DEL /S /Q /F "%%u\AppData\Roaming\Code\logs\" >nul 2>&1
+		REM Service Worker Cache
+		DEL /S /Q /F "%%u\AppData\Roaming\Code\Service Worker\CacheStorage\" >nul 2>&1
+	)
+
+:braveCleanupPrompt
+	set /p brave=Do you wish to delete Brave Browser cache? (Safe, rebuilds automatically) [Y/N]?
+	if /I "%brave%" EQU "Y" goto braveCleanup
+	if /I "%brave%" EQU "N" goto chocoCleanupPrompt
+
+:braveCleanup
+	ECHO Cleaning Brave Browser cache for all users
+	taskkill /f /IM brave.exe >nul 2>&1
+	SETLOCAL EnableDelayedExpansion
+	For /d %%u in ("%systemdrive%\users\*") do (
+		SET "braveDataDir=%%u\AppData\Local\BraveSoftware\Brave-Browser\User Data"
+		SET "folderListFile=!TEMP!\brave_profiles.txt"
+		REM Find the matching folders and store them in the temporary file
+		IF EXIST "!braveDataDir!" (
+			dir "!braveDataDir!" /b /ad 2>nul | findstr /r "^Default$ ^Profile" > "!folderListFile!" 2>nul
+			REM Loop through each folder listed in the temporary file
+			FOR /F "delims=" %%p IN ('type "!folderListFile!" 2^>nul') DO (
+				del /q /s /f "!braveDataDir!\%%p\Cache\*.*" >nul 2>&1
+				del /q /s /f "!braveDataDir!\%%p\Code Cache\*.*" >nul 2>&1
+				del /q /s /f "!braveDataDir!\%%p\GPUCache\*.*" >nul 2>&1
+			)
+		)
+		del /q /s /f "!braveDataDir!\GrShaderCache\" >nul 2>&1
+		del /q /s /f "!braveDataDir!\ShaderCache\" >nul 2>&1
+		IF EXIST "!folderListFile!" DEL /Q /F "!folderListFile!"
+	)
+	ENDLOCAL
+
+:chocoCleanupPrompt
+	set /p choco=Do you wish to delete Chocolatey package cache? (Safe, reinstalls if needed) [Y/N]?
+	if /I "%choco%" EQU "Y" goto chocoCleanup
+	if /I "%choco%" EQU "N" goto androidCleanupPrompt
+
+:chocoCleanup
+	ECHO Cleaning Chocolatey package cache
+	DEL /S /Q /F "C:\ProgramData\chocolatey\cache\" >nul 2>&1
+	DEL /S /Q /F "C:\ProgramData\chocolatey\logs\" >nul 2>&1
+	if %errorlevel% EQU 0 (
+		ECHO Chocolatey cache cleaned successfully
+	) else (
+		ECHO Chocolatey cleanup skipped - Chocolatey not installed
+	)
+
+:androidCleanupPrompt
+	set /p android=Do you wish to delete Android SDK build cache? (Safe for build caches only) [Y/N]?
+	if /I "%android%" EQU "Y" goto androidCleanup
+	if /I "%android%" EQU "N" goto condaCleanupPrompt
+
+:androidCleanup
+	ECHO Cleaning Android SDK build caches for all users
+	For /d %%u in (c:\users\*) do (
+		REM Gradle build cache for Android
+		RD /S /Q "%%u\AppData\Local\Android\.gradle\caches" >nul 2>&1
+		REM Android build cache
+		RD /S /Q "%%u\AppData\Local\Android\build-cache" >nul 2>&1
+		REM AVD temp files
+		DEL /S /Q /F "%%u\.android\avd\*.tmp" >nul 2>&1
+		DEL /S /Q /F "%%u\.android\cache\" >nul 2>&1
+	)
+
+:condaCleanupPrompt
+	set /p conda=Do you wish to delete Anaconda/Conda package cache? (Safe, rebuilds automatically) [Y/N]?
+	if /I "%conda%" EQU "Y" goto condaCleanup
+	if /I "%conda%" EQU "N" goto githubCleanupPrompt
+
+:condaCleanup
+	ECHO Cleaning Anaconda/Conda package cache for all users
+	For /d %%u in (c:\users\*) do (
+		RD /S /Q "%%u\AppData\Local\conda\pkgs" >nul 2>&1
+		RD /S /Q "%%u\.conda\pkgs" >nul 2>&1
+		REM Conda cache
+		DEL /S /Q /F "%%u\AppData\Local\conda\cache\" >nul 2>&1
+	)
+
+:githubCleanupPrompt
+	set /p github=Do you wish to delete GitHub Desktop logs and cache? (Safe, rebuilds automatically) [Y/N]?
+	if /I "%github%" EQU "Y" goto githubCleanup
+	if /I "%github%" EQU "N" goto messengerCleanupPrompt
+
+:githubCleanup
+	ECHO Cleaning GitHub Desktop cache for all users
+	taskkill /F /IM GitHubDesktop.exe >nul 2>&1
+	For /d %%u in (c:\users\*) do (
+		DEL /S /Q /F "%%u\AppData\Roaming\GitHub Desktop\logs\" >nul 2>&1
+		DEL /S /Q /F "%%u\AppData\Local\GitHubDesktop\Cache\" >nul 2>&1
+		DEL /S /Q /F "%%u\AppData\Local\GitHubDesktop\Code Cache\" >nul 2>&1
+		DEL /S /Q /F "%%u\AppData\Local\GitHubDesktop\GPUCache\" >nul 2>&1
+	)
+
+:messengerCleanupPrompt
+	set /p messenger=Do you wish to delete Messenger cache? (Safe, rebuilds automatically) [Y/N]?
+	if /I "%messenger%" EQU "Y" goto messengerCleanup
+	if /I "%messenger%" EQU "N" goto CLEANMGR
+
+:messengerCleanup
+	ECHO Cleaning Messenger cache for all users
+	taskkill /F /IM Messenger.exe >nul 2>&1
+	For /d %%u in (c:\users\*) do (
+		DEL /S /Q /F "%%u\AppData\Local\Messenger\Cache\" >nul 2>&1
+		DEL /S /Q /F "%%u\AppData\Local\Messenger\Code Cache\" >nul 2>&1
+		DEL /S /Q /F "%%u\AppData\Local\Messenger\GPUCache\" >nul 2>&1
+		DEL /S /Q /F "%%u\AppData\Roaming\Messenger\Cache\" >nul 2>&1
+		DEL /S /Q /F "%%u\AppData\Roaming\Messenger\logs\" >nul 2>&1
 	)
 
 :CLEANMGR
