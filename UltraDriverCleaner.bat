@@ -27,7 +27,7 @@ ECHO ============================================================
 ECHO                    MAIN MENU
 ECHO ============================================================
 ECHO.
-ECHO   [1] CLEANUP - Remove old/unused drivers
+ECHO   [1] CLEANUP - Remove old/duplicate drivers
 ECHO   [2] BACKUP  - Export all current drivers
 ECHO   [3] RESTORE - Reinstall drivers from backup
 ECHO   [4] EXIT
